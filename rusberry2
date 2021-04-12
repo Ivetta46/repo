@@ -1,0 +1,56 @@
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(26, GPIO.OUT)
+GPIO.setup(19, GPIO.OUT)
+GPIO.setup(13, GPIO.OUT)
+GPIO.setup(6, GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
+GPIO.setup(11, GPIO.OUT)
+GPIO.setup(9, GPIO.OUT)
+GPIO.setup(10, GPIO.OUT)
+GPIO.setup(17, GPIO.OUT)
+GPIO.setup(4, GPIO.IN)
+
+def decToBinList(decNumber):
+    arr = [0 for _ in range(8)]
+    if decNumber == 0:
+        return arr
+    i = 0
+    while decNumber != 1:
+        arr[i] = decNumber % 2
+        decNumber = decNumber // 2
+        i += 1
+    arr[i] = (decNumber)
+    arr.reverse()
+    return arr
+
+def lightNumber(number):
+    arr = decToBinList(number)
+    D = [26, 19, 13, 6, 5, 11, 9, 10]
+    for i in range(len(arr)):
+        GPIO.output(D[i], arr[i])
+   
+
+D = [26, 19, 13, 6, 5, 11, 9, 10]
+
+def num2dac(value):
+    N = [0,0,0,0,0,0,0,0]
+    p = int(value/256)
+    q = value%256
+    F = p + q
+    N = lightNumber(F)
+
+def adc_procedure():
+    for j in range(256):
+        lightNumber(j)
+        time.sleep(0.001)
+        if GPIO.input(4) == 0:
+            print(j*0.0128 + "V")
+            break
+    return j
+
+GPIO.output(17, 1)
+while True:
+    adc_procedure()
